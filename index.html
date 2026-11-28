@@ -768,11 +768,16 @@ footer{position:relative;z-index:1;text-align:center;padding:16px 20px 46px;colo
 
   /* ---- gate ---- */
   var gate = $('gate'), page = $('page'), tapText = $('tapText'), ready = false, opened = false;
+  /* a refresh always starts again from the top */
+  try { if ('scrollRestoration' in history) history.scrollRestoration = 'manual'; } catch (e) {}
+  function toTop(){ var h = document.documentElement, old = h.style.scrollBehavior; h.style.scrollBehavior = 'auto'; window.scrollTo(0, 0); h.scrollTop = 0; document.body.scrollTop = 0; h.style.scrollBehavior = old; }
+  toTop(); addEventListener('load', toTop); addEventListener('pageshow', function(e){ if (!opened) toTop(); if (e.persisted) location.reload(); });
+
   function setReady(){ if (ready) return; ready = true; tapText.textContent = 'Tap to open'; paintFoil(); }
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(setReady);
   setTimeout(setReady, 2500);
   $('openBtn').addEventListener('click', function(){
-    if (opened) return; opened = true; setReady();
+    if (opened) return; opened = true; toTop(); setReady();
     gate.classList.add('open'); page.classList.add('entering');
     petals(30);
     setTimeout(function(){ gate.style.display = 'none'; document.body.classList.remove('locked'); }, reduce ? 50 : 1900);
